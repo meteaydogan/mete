@@ -1,0 +1,14 @@
+{
+  "name": "depom-agent-project",
+  "private": true,
+  "version": "1.0.0",
+  "description": "DEPOM customer support agent demo",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test server/",
+    "health": "node -e \"fetch('http://localhost:3000/api/health').then(r=>r.json()).then(console.log)\""
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
