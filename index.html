@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DEPOM — Müşteri Destek Agent</title>
+<meta name="description" content="DEPOM için sipariş, kargo takip, iade ve değişim işlemlerini yürüten örnek bir yapay zekâ müşteri destek agent'ı.">
+<meta property="og:title" content="DEPOM — Müşteri Destek Agent">
+<meta property="og:description" content="Sipariş sorgulama, kargo takip, iade/değişim ve insan temsilciye eskalasyon akışlarını gösteren canlı demo.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="barcode"></div>
+    <div class="stamp">CANLI DEMO</div>
+    <div class="brand">DEPOM<span class="dot">.</span></div>
+    <div class="tagline">MÜŞTERİ DESTEK AGENT — SİPARİŞ · İADE · KARGO TAKİP · DEĞİŞİM</div>
+  </header>
+
+  <div class="idbar">
+    <span>Test müşterisi:</span>
+    <select id="customerSelect">
+      <option value="ayse@example.com">ayse@example.com (2 geçmiş iade)</option>
+      <option value="mehmet@example.com">mehmet@example.com (0 geçmiş iade)</option>
+      <option value="elif@example.com">elif@example.com (0 geçmiş iade)</option>
+    </select>
+  </div>
+
+  <div class="authbar" aria-label="Kimlik doğrulama">
+    <input id="verifyOrderInput" type="text" placeholder="Sipariş no: SP-1042" autocomplete="off">
+    <input id="verifyContactInput" type="text" placeholder="E-posta veya telefon" autocomplete="off">
+    <button id="verifyBtn">DOĞRULA</button>
+    <div class="auth-status" id="authStatus">Henüz sipariş doğrulanmadı. Hassas işlemler için sipariş no + e-posta/telefon eşleşmesi gerekir.</div>
+  </div>
+
+  <div class="toolbar" aria-label="Demo kontrolleri">
+    <select id="modeSelect" title="Yanıt motoru">
+      <option value="demo">Demo motoru (API gerekmez)</option>
+      <option value="ai">AI API modu</option>
+    </select>
+    <button class="primary" id="openOrdersBtn">Müşterinin siparişleri</button>
+    <select id="scenarioSelect" title="Test senaryosu">
+      <option value="">Test senaryosu seç</option>
+      <option value="Siparişim SP-1042 nerede, ne zaman elime ulaşır?">Başarılı kargo sorgulama</option>
+      <option value="SP-2031 siparişimi iade etmek istiyorum.">Teslim edilmemiş iade</option>
+      <option value="SP-2050 siparişimi iade edebilir miyim?">Süresi geçmiş iade</option>
+      <option value="SP-1090 siparişimdeki ürünü değiştirmek istiyorum, kutusu hasarlı geldi.">Değişim akışı</option>
+      <option value="Bu ürün üçüncü kez bozuk geliyor, gerçekten çok sinirliyim, bir çözüm istiyorum!">Şüpheli/çok sinirli</option>
+    </select>
+    <button id="runScenarioBtn">Senaryoyu çalıştır</button>
+    <button id="repPanelBtn">Temsilci paneli</button>
+    <button id="exportLogBtn">Günlüğü indir</button>
+    <button id="clearChatBtn">Sohbeti temizle</button>
+    <button id="resetMemoryBtn" class="danger">Hafızayı sıfırla</button>
+    <button id="themeBtn">Koyu tema</button>
+    <button id="langBtn">EN</button>
+  </div>
+
+  <div class="summary" id="customerSummary" aria-live="polite"></div>
+
+  <div class="rep-panel" id="repPanel">
+    <h3>İnsan Temsilci Kuyruğu</h3>
+    <div id="caseList"></div>
+  </div>
+
+  <div class="logbar" id="logbar" role="button" tabindex="0" aria-expanded="false">
+    <span>▤ SİSTEM GÜNLÜĞÜ (agent'ın çağırdığı tool'lar burada görünür)</span>
+    <span class="arrow" id="logArrow">▾</span>
+  </div>
+  <div class="logpanel" id="logpanel"></div>
+
+  <div class="chat" id="chat" role="log" aria-live="polite" aria-label="Müşteri destek sohbeti"></div>
+
+  <div class="suggestions" id="suggestions">
+    <button data-msg="Siparişim SP-1042 nerede, ne zaman elime ulaşır?">📦 Kargo nerede?</button>
+    <button data-msg="SP-1090 numaralı siparişimi iade etmek istiyorum, beğenmedim.">↩ İade başlat</button>
+    <button data-msg="SP-1090 siparişimdeki ürünü değiştirmek istiyorum, kutusu hasarlı geldi.">🔁 Değişim başlat</button>
+    <button data-msg="SP-1090 iade işlemini onaylıyorum, sebep: beğenmedim.">✅ İadeyi onayla</button>
+    <button data-msg="Bu ürün üçüncü kez bozuk geliyor, gerçekten çok sinirliyim, bir çözüm istiyorum!">😠 Sinirli müşteri senaryosu</button>
+    <button data-msg="SP-2050 siparişimi iade edebilir miyim?">⏰ Süresi geçmiş iade</button>
+  </div>
+
+  <div class="inputbar">
+    <input id="msgInput" type="text" placeholder="Mesajınızı yazın..." autocomplete="off">
+    <button id="sendBtn">GÖNDER</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="./i18n.js"></script>
+<script src="./data.js"></script>
+<script src="./tools.js"></script>
+<script src="./agent.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
+
